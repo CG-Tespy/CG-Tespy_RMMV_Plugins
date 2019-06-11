@@ -396,14 +396,14 @@ if (TH == undefined || TH.EnemyReinforcements == undefined)
             if (force != true && !this.isEnabled)
                 return;
 
-            // Update the volume before playing
-            console.log("Sounding the siren!");
-            if (this.sirenSound == undefined)
-                return;
+            if (this.sirenSound != undefined)
+            {
+                // Update the volume before playing
+                console.log("Sounding the siren!");
+                this.sirenSound.volume =            AudioManager.seVolume;
+                this.sirenSound.play();
+            }
 
-            this.sirenSound.volume =    AudioManager.seVolume;
-            
-            this.sirenSound.play();
             this.totalNoise =           0;
 
             // TODO: Invoke the proper events
