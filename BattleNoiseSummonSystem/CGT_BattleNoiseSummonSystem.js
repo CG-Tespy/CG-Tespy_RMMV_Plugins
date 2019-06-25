@@ -115,7 +115,7 @@ CGT.BNSS.verNum =                       0.07;
 // Make sure the HimeWorks Enemy Reinforcements plugin is enabled
 if (TH == undefined || TH.EnemyReinforcements == undefined)
 {
-    var message = "CGT BattleNoiseSirenSystem requires HIME EnemyReinforcements to function.";
+    var message = "CGT BattleNoiseSummonSystem requires HIME EnemyReinforcements to function.";
     alert(message);
     throw message;
 }
@@ -769,7 +769,7 @@ if (TH == undefined || TH.EnemyReinforcements == undefined)
         // Methods
         init: function()
         {
-            this._pluginParams =                PluginManager.parameters("CGT_BattleNoiseSirenSystem");
+            this._pluginParams =                PluginManager.parameters("CGT_BattleNoiseSummonSystem");
             this.setupBaseTroops();
             this.setupBaseWeapons();
             this.setupMainTroops();
@@ -926,6 +926,8 @@ if (TH == undefined || TH.EnemyReinforcements == undefined)
     function noiseTroopCleanup()
     {
         let currentTroop =                      CGT.BNSS.NoiseTroop.current;
+        if (currentTroop == null) // For when the in-game battle troop isn't registered in this plugin
+            return;
         currentTroop.clearState();
         CGT.BNSS.NoiseTroop.current =           null;
     }
