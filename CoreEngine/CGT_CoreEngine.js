@@ -1,17 +1,83 @@
 /*:
  * @plugindesc Mainly contains utility code that other CGT scripts rely on.
  * @author CG-Tespy https://github.com/CG-Tespy
- * @help This is version 0.55 of this plugin. For RMMV versions 1.5.1 and above. See 
+ * @help This is version 0.61 of this plugin. For RMMV versions 1.5.1 and above. See 
 the help docs on the github page for information on using this plugin.
  */
 
 "use strict";
 let CGT =                                   {};
-CGT.coreVerNum =                            0.55;
+CGT.coreVerNum =                            0.61;
 
 // Extensions to preexisting APIs
 (function()
 {
+    
+    /**
+     * Add a callback function that will be called when the bitmap is loaded.
+     * Author: MinusGix
+     * @method addLoadListener
+     * @param {Function} listener The callback function
+     */
+    Bitmap.prototype.addLoadListener = function(listener) {
+        if (!this.isReady()) {
+            this._loadListeners.push(listener);
+        } else {
+            listener(this);
+        }
+    };
+
+    Bitmap.prototype.removeLoadListener = function(listener)
+    {
+        this._loadListeners.remove(listener);
+    }
+
+    Bitmap.prototype.hasLoadListener = function(listener)
+    {
+        return this._loadListeners.includes(listener);
+    }
+
+
+    /**
+     * Returns a resized version of the bitmap (if it is ready). Note that 
+     * the aspect ratio may not be the same, based on the passed width and height. 
+     * @param {number} width
+     * @param {number} height
+     */
+    Bitmap.prototype.resized = function(width, height)
+    {
+        if (!this.isReady())
+            return;
+
+        let newBitmap =                     new Bitmap(width, height);
+
+        newBitmap.blt(this, 0, 0, this.width, this.height, 0, 0, width, height);
+        return newBitmap;
+    }
+
+    PIXI.Sprite.prototype.resized =         function(width, height)
+    {
+        let newSprite =                     new PIXI.Sprite(this.texture);
+        newSprite.width =                   width;
+        newSprite.height =                  height;
+
+        return newSprite;
+    }
+
+    PIXI.Sprite.prototype.copy =            function()
+    {
+        let newSprite =                     new PIXI.Sprite(this.texture);
+        newSprite.width =                   this.width;
+        newSprite.height =                  this.height;
+        return newSprite;
+    }
+
+    PIXI.Sprite.prototype.resize = function(width, height)
+    {
+        this.width =                        width;
+        this.height =                       height;
+    }
+    
     // Why this wasn't built into JS, I'll never know.
     Array.prototype.remove =                function(toRemove)
     {
@@ -223,12 +289,12 @@ CGT.coreVerNum =                            0.55;
 
     // Have to set static fields outside of class declaration
     // Valid value ranges, as imposed by MV's sound player
-    CGT.minVolume =                  0;
-    CGT.maxVolume =                  100;
-    CGT.minPitch =                   -100;
-    CGT.maxPitch =                   100;
-    CGT.minPan =                     -100;
-    CGT.maxPan =                     100;
+    CGT.Sound.minVolume =                   0;
+    CGT.Sound.maxVolume =                   100;
+    CGT.Sound.minPitch =                    -100;
+    CGT.Sound.maxPitch =                    100;
+    CGT.Sound.minPan =                      -100;
+    CGT.Sound.maxPan =                      100;
 
     // Because regular JS objects aren't good enough.
     CGT.Dictionary =                        class
@@ -424,6 +490,12 @@ CGT.coreVerNum =                            0.55;
 
 })();
 
+// Extensions to preexisting APIs dependent on this script's custom utils
+(function()
+{
+    
+})();
+
 // Setting up callbacks
 (function()
 {
@@ -431,7 +503,7 @@ CGT.coreVerNum =                            0.55;
     CGT.Callbacks =                         {};
     CGT.Callbacks.TitleScreenStart =        new CGT.Event(0);
     CGT.Callbacks.BattleStart =             new CGT.Event(0);
-    CGT.Callbacks.BattleEnd =               new CGT.Event(0);
+    CGT.Callbacks.BattleEnd =               new CGT.Event(1);
     CGT.Callbacks.DamageExecute =           new CGT.Event(2);
     CGT.Callbacks.EnemyDeath =              new CGT.Event(1);
 
@@ -455,10 +527,10 @@ CGT.coreVerNum =                            0.55;
         CGT.Callbacks.BattleStart.invoke();
     }
 
-    function newEndBattle()
+    function newEndBattle(result)
     {
-        oldEndBattle.call(this);
-        CGT.Callbacks.BattleEnd.invoke();
+        oldEndBattle.call(this, result);
+        CGT.Callbacks.BattleEnd.invoke(result);
     }
 
     function newExecuteDamage(target, value)

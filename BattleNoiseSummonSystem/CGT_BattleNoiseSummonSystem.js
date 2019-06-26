@@ -4,7 +4,7 @@
 
 @author CG-Tespy https://github.com/CG-Tespy
 
-@help This is version 1.0 of this plugin. For RMMV versions 1.5.1 and above. 
+@help This is version 1.02 of this plugin. For RMMV versions 1.5.1 and above. 
 Requires CGT_CoreEngine. See the help docs on the github page for information 
 on using this plugin.
 
@@ -110,7 +110,7 @@ Make sure to credit me if you're using this plugin in your game
 */
 
 CGT.BNSS =                              {};
-CGT.BNSS.verNum =                       0.07;
+CGT.BNSS.verNum =                       1.02;
 
 // Make sure the HimeWorks Enemy Reinforcements plugin is enabled
 if (TH == undefined || TH.EnemyReinforcements == undefined)
